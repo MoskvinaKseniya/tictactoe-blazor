@@ -1,0 +1,147 @@
+﻿@page "/"  // открывается на главной странице
+@using tictactoe_blazor.Components.GameLogic
+@using tictactoe_blazor.Components.Services
+@using Microsoft.AspNetCore.SignalR.Client
+@inject GameService GameService  // хранит текущее состояние игры, чтобы все окна браузера использовали одну игру
+@inject NavigationManager Navigation
+
+@{
+    // игра создаётся только после ввода параметров
+}
+
+<div class="game-container">
+    @if (game == null)  // экран настройки новой игры
+    {
+        <div class="new-game">
+        <h3>Новая игра</h3>
+
+            <div class="input-group">
+            <label>Размер игрового поля nxn (n ≥ 3):</label>
+            <input type="number" class="form-control" @bind="n" />
+        </div>
+
+            <div class="input-group">
+            <label>Количество совпадений для победы m (2 ≤ m ≤ n):</label>
+            <input type="number" class="form-control" @bind="m" />
+        </div>
+
+            <button class="btn btn-start"
+                @onclick="StartGame"
+                disabled="@(n < 3 || m < 2 || m > n)">
+            Начать игру
+        </button>
+        </div>
+    }
+else  // игровое поле
+{
+    <div class="board-container">
+        <h3>Крестики-нолики @game.N × @game.N</h3>
+        <h5>Для победы необходимо @game.M символов подряд</h5>
+
+        <div class="board">
+            @for (int r = 0; r < game.N; r++)
+            {
+                <div class="board-row">
+                    @for (int c = 0; c < game.N; c++)
+                    {
+                        int index = r * game.N + c;
+                        char symbol = game.Board[r, c];
+
+                            <button class="cell @(symbol == 'X' ? "cell-x" : symbol == 'O' ? "cell-o" : "")"
+                                disabled="@game.GameEnded"
+                                @onclick="() => MakeMove(index)">
+                            @(symbol == '\0' ? "" : symbol)
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+        <br />
+        <div class="controls">
+            @if (game.GameEnded)  // результат
+            {
+                    <h3 class="result-text">Результат: @game.Winner</h3>
+                    <button class="btn btn-restart" @onclick="Restart">Играть еще раз</button>
+            }
+            else  // текущий ход
+            {
+                <h3>Ход игрока: @(game.IsPlayerX ? "X" : "O")</h3>
+                    <button class="btn btn-end" @onclick="EndGame">Завершить игру</button>
+            }
+        </div>
+    </div>
+}
+</div>
+
+@* @code {  // C# код компонента
+    int n = 3;
+    int m = 3;
+
+    TicTacToe? game => GameService.CurrentGame;  // сылка на текущую игру хранится в сервисе
+
+    void StartGame()
+    {
+        GameService.StartGame(n, m);
+    }
+
+    void MakeMove(int index)
+    {
+        GameService.MakeMove(index);
+    }
+
+    void Restart()
+    {
+        GameService.Restart();
+    }
+
+    void EndGame()
+    {
+        GameService.EndGame();
+    }
+} *@
+
+@code {
+    int n = 3;
+    int m = 3;
+
+    HubConnection? hubConnection;
+
+    TicTacToe? game => GameService.CurrentGame;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // создаем подключение к хабу
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/gamehub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        // обработчик: сервер сообщил об обновлении игрового поля
+        hubConnection.On("BoardUpdated", () =>
+        {
+            InvokeAsync(StateHasChanged); // обновить интерфейс
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    void StartGame()
+    {
+        GameService.StartGame(n, m);
+    }
+
+    void MakeMove(int index)
+    {
+        GameService.MakeMove(index);
+    }
+
+    void Restart()
+    {
+        GameService.Restart();
+    }
+
+    void EndGame()
+    {
+        GameService.EndGame();
+    }
+}

@@ -1,0 +1,84 @@
+﻿@inherits LayoutComponentBase
+
+<div class="main-container">
+    <h1>Крестики-нолики</h1>
+
+    <div class="content">
+        @Body
+    </div>
+</div>
+
+<style>
+    /* Основной контейнер по центру страницы */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* горизонтальное центрирование */
+        justify-content: flex-start; /* вертикальное выравнивание сверху */
+        min-height: 100vh; /* чтобы занимать всю высоту окна */
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+    }
+
+    /* Центрирование контента страницы */
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Игровое поле */
+    .board {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .board-row {
+        display: flex;
+    }
+
+    .cell {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+        margin: 3px;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        border: 2px solid #333;
+        border-radius: 6px;
+        background-color: #f0f0f0;
+        transition: background-color 0.2s;
+    }
+
+        .cell:hover:not(:disabled) {
+            background-color: #d0e0ff;
+        }
+
+    button:disabled {
+        cursor: default;
+        opacity: 0.6;
+    }
+
+    /* Параметры игры и результат */
+    .mb-3 {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        margin-top: 10px;
+    }
+</style>
+
+
