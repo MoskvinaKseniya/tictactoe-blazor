@@ -4,9 +4,9 @@ using tictactoe_blazor.Components.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Добавляем сервис игры как Singleton
+// Г„Г®ГЎГ ГўГ«ГїГҐГ¬ Г±ГҐГ°ГўГЁГ± ГЁГЈГ°Г» ГЄГ ГЄ Singleton
 builder.Services.AddSingleton<GameService>();
-builder.Services.AddSignalR();  // хаб
+builder.Services.AddSignalR();  // ГµГ ГЎ
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -23,7 +23,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
@@ -31,6 +31,6 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapHub<GameHub>("/gamehub");  // регистрируем хаб
+app.MapHub<GameHub>("/gamehub");  // Г°ГҐГЈГЁГ±ГІГ°ГЁГ°ГіГҐГ¬ ГµГ ГЎ
 
 app.Run();
